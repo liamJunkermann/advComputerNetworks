@@ -17,17 +17,17 @@ var config *Config
 var cache *Cache
 
 func main() {
-	var addr = flag.String("addr", "127.0.0.1:8080", "The addr of the application.")
 	configPath := flag.String("config", "./tiny.json", "configuration .json file path")
 	flag.Parse()
-
+	
 	loadConfig(*configPath)
 	glog.Info("Config Loaded")
-
+	
 	prepare()
-
+	
 	handler := &proxy{}
-
+	
+	var addr = flag.String("addr", "127.0.0.1:"+config.Port, "The addr of the application.")
 	glog.Info("Starting proxy server on ", *addr)
 	if err := http.ListenAndServe(*addr, handler); err != nil {
 		glog.Fatal("ListenAndServe:", err)

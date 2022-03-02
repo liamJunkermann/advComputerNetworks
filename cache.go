@@ -26,6 +26,7 @@ type Cache struct {
 }
 
 func CreateCache(path string) (*Cache, error) {
+	// TODO: Clear cache (or add timing data to file cache) 
 	fileInfos, err := ioutil.ReadDir(path)
 	if err != nil {
 		glog.Error("Cannot open cache folder ", path, ": ", err)
