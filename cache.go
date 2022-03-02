@@ -34,6 +34,7 @@ func CreateCache(path string) (*Cache, error) {
 	}
 
 	values := make(map[string][]byte, 0)
+	timeValues := make(map[string]time.Duration, 0)
 	busy := make(map[string]*sync.Mutex, 0)
 
 	// Go through every file an save its name in the map. The content of the file
@@ -53,6 +54,7 @@ func CreateCache(path string) (*Cache, error) {
 		folder:      path,
 		hash:        hash,
 		knownValues: values,
+		timingValues: timeValues,
 		busyValues:  busy,
 		mutex:       mutex,
 	}
@@ -102,7 +104,7 @@ func (c *Cache) get(key string) (*io.Reader, error) {
 	// Try to get content. Error if not found.
 	c.mutex.Lock()
 	content, ok := c.knownValues[hashValue]
-	timing, ok := c.timingValues[hashValue]
+	timing := c.timingValues[hashValue]
 	c.mutex.Unlock()
 	if !ok && len(content) > 0 {
 		glog.Info("Cache doesn't know key ", hashValue)
@@ -165,7 +167,7 @@ func (c *Cache) put(key string, content *io.Reader, contentLength int64, timing 
 		}
 		glog.Info("Wrote content of entry ", hashValue, " into file")
 	} else { // Too large for in-memory cache, just write to file
-		defer c.release(hashValue, nil, -1)
+		defer c.release(hashValue, nil, time.Now().Sub(time.Now()))
 		glog.Info("Added nil-entry for ", hashValue, " into in-memory cache")
 
 		file, err := os.Create(c.folder + hashValue)

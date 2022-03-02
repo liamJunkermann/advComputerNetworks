@@ -140,7 +140,7 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 				glog.Fatal("Error writing response: ", err.Error())
 				return
 			}
-			glog.Info("Wrote ", contentWritten, " bytes")
+			glog.Info("Wrote ", contentWritten, " bytes to client")
 		}
 	} else {
 		glog.Info(strings.Index(req.Host, ":"))
