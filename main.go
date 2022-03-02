@@ -100,7 +100,7 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 		client := &http.Client{}
 
 		if busy, ok := cache.has(fullUrl); !ok {
-			var startTime = time.Now()
+			startTime := time.Now()
 			defer busy.Unlock()
 			req.RequestURI = ""
 
@@ -118,10 +118,10 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 			var reader io.Reader
 			reader = resp.Body
-			var endTime = time.Now()
-			var totalTime = endTime.Sub(startTime)
+			endTime := time.Now()
+			totalTime := endTime.Sub(startTime)
 			glog.Info("Time Spent: ", totalTime)
-			err = cache.put(fullUrl, &reader, resp.ContentLength)
+			err = cache.put(fullUrl, &reader, resp.ContentLength, totalTime)
 			if err != nil {
 				http.Error(wr, "Server Error", http.StatusInternalServerError)
 				glog.Fatal("ServeHTTP:", err)

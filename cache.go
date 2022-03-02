@@ -11,16 +11,18 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/golang/glog"
 )
 
 type Cache struct {
-	folder      string
-	hash        hash.Hash
-	knownValues map[string][]byte
-	busyValues  map[string]*sync.Mutex
-	mutex       *sync.Mutex
+	folder       string
+	hash         hash.Hash
+	knownValues  map[string][]byte
+	timingValues map[string]time.Duration
+	busyValues   map[string]*sync.Mutex
+	mutex        *sync.Mutex
 }
 
 func CreateCache(path string) (*Cache, error) {
@@ -100,6 +102,7 @@ func (c *Cache) get(key string) (*io.Reader, error) {
 	// Try to get content. Error if not found.
 	c.mutex.Lock()
 	content, ok := c.knownValues[hashValue]
+	timing, ok := c.timingValues[hashValue]
 	c.mutex.Unlock()
 	if !ok && len(content) > 0 {
 		glog.Info("Cache doesn't know key ", hashValue)
@@ -126,20 +129,22 @@ func (c *Cache) get(key string) (*io.Reader, error) {
 		glog.Info("Create reader from ", len(content), " byte large cache content")
 	}
 
+	glog.Info("Saved ", timing.Milliseconds(), "ms and ", len(content), "bytes")
 	return &response, nil
 }
 
 // release is an internal method which atomically caches an item and unmarks
 // the item as busy, if it was busy before. The busy lock *must* be unlocked
 // elsewhere!
-func (c *Cache) release(hashValue string, content []byte) {
+func (c *Cache) release(hashValue string, content []byte, timing time.Duration) {
 	c.mutex.Lock()
 	delete(c.busyValues, hashValue)
 	c.knownValues[hashValue] = content
+	c.timingValues[hashValue] = timing
 	c.mutex.Unlock()
 }
 
-func (c *Cache) put(key string, content *io.Reader, contentLength int64) error {
+func (c *Cache) put(key string, content *io.Reader, contentLength int64, timing time.Duration) error {
 	hashValue := calcHash(key)
 
 	// Small enough to put it into the in-memory cache
@@ -150,7 +155,8 @@ func (c *Cache) put(key string, content *io.Reader, contentLength int64) error {
 			return err
 		}
 
-		defer c.release(hashValue, buffer.Bytes())
+
+		defer c.release(hashValue, buffer.Bytes(), timing)
 		glog.Info("Added ", hashValue, "into in-memory cache")
 
 		err = ioutil.WriteFile(c.folder+hashValue, buffer.Bytes(), 0644)
@@ -159,7 +165,7 @@ func (c *Cache) put(key string, content *io.Reader, contentLength int64) error {
 		}
 		glog.Info("Wrote content of entry ", hashValue, " into file")
 	} else { // Too large for in-memory cache, just write to file
-		defer c.release(hashValue, nil)
+		defer c.release(hashValue, nil, -1)
 		glog.Info("Added nil-entry for ", hashValue, " into in-memory cache")
 
 		file, err := os.Create(c.folder + hashValue)
