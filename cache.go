@@ -26,7 +26,6 @@ type Cache struct {
 }
 
 func CreateCache(path string) (*Cache, error) {
-	// TODO: Clear cache (or add timing data to file cache) 
 	fileInfos, err := ioutil.ReadDir(path)
 	if err != nil {
 		glog.Error("Cannot open cache folder ", path, ": ", err)
@@ -34,9 +33,9 @@ func CreateCache(path string) (*Cache, error) {
 		os.Mkdir(path, os.ModePerm)
 	}
 
-	values := make(map[string][]byte, 0)
-	timeValues := make(map[string]time.Duration, 0)
-	busy := make(map[string]*sync.Mutex, 0)
+	values := make(map[string][]byte)
+	timeValues := make(map[string]time.Duration)
+	busy := make(map[string]*sync.Mutex)
 
 	// Go through every file an save its name in the map. The content of the file
 	// is loaded when needed. This makes sure that we don't have to read
