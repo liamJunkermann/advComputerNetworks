@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+  <title>Proxy Web Dashboard</title>
+</head>
+
+<style>
+  .url-row {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    padding: 10px 40px;
+    justify-content: space-between;
+    text-align: center;
+    align-items: center;
+    border: 0.75px black solid;
+    border-radius: 20px;
+    background-color: lightgray;
+  }
+
+  .url-row:first-of-type {
+    margin-top: 20px;
+  }
+
+  .url-row .method {
+    width: 90px;
+    justify-content: center;
+    border: 1px black solid;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: green;
+    color: white;
+  }
+
+  .url-row .url {}
+
+  .url-row .blocked {}
+</style>
+
+<body>
+  <div class="p-5 bg-light">
+    <div class="container">
+      <h1 class="display-3">Proxy Web Dashboard</h1>
+      <p class="lead">- Management Port</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row" style="justify-content: center">
+      <div class="col-9" style="text-align: center">
+        <div class="row">
+          <h4>urls</h4>
+          <div class="col">
+            <button type="button" class="btn btn-primary" onclick="getUrls()">
+              Reload
+            </button>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-primary" onclick="autoGetUrls()">
+              auto-reload
+            </button>
+          </div>
+        </div>
+        <div id="url-col"></div>
+      </div>
+      <!-- <div class="col"></div> -->
+    </div>
+  </div>
+</body>
+<script>
+  getUrls();
+
+  const urlList = []
+  async function handleBlockPressed(status, hash) {
+    console.log("handleBlockPressed", status);
+    let response;
+    switch (status) {
+      case "block":
+        response = await fetch(/* testUrl+ */ "/block", {
+          method: "POST",
+          body: hash,
+        })
+        break;
+      case "unblock":
+        response = await fetch(/* testUrl+ */ "/unblock", {
+          method: "POST",
+          body: hash,
+        });
+        break;
+      default:
+        console.error("no status defined");
+        return;
+    }
+    response.json().then(data => {
+      const parentDiv = document.getElementById(hash)
+      parentDiv.getElementsByClassName("blocked")[0].innerHTML = 
+      `<div class="blocked"><button type="button" class="btn btn-primary" onclick="handleBlockPressed(${
+          data.blocked ? "'unblock'" : "'block'"
+        }, '${hash}')">${data.blocked ? "Unblock" : "Block"}</button></div>`
+    })
+
+
+  }
+
+  async function getUrls() {
+    console.log("geturls");
+    let urlData = await fetch("/urls").then((response) => response.json());
+    console.log(urlData);
+    // var urlList = "";
+    for (const key in urlData) {
+      const listing = urlData[key];
+      const htmlStr = `
+      <div class="url-row" style="flex-direction: row;" id="${key}">
+        <div class="method">${listing.method}</div>
+        <div class="url">${listing.url}</div>
+        <div class="blocked"><button type="button" class="btn btn-primary" onclick="handleBlockPressed(${listing.blocked ? "'unblock'" : "'block'"
+        }, '${key}')">${listing.blocked ? "Unblock" : "Block"}</button></div>
+      </div>
+      `;
+      // urlList += "\n" + htmlStr;
+      urlList.push({ "hash": key, "html": htmlStr })
+      // console.log(urlList)
+    }
+    // console.log(urlList)
+    // document.getElementById("url-col").innerHTML = urlList;
+    updateHtml()
+  }
+
+  function updateHtml() {
+    console.log(urlList)
+    var fullHtmlStr = ""
+    urlList.forEach(val => fullHtmlStr += "\n" + val.html)
+    document.getElementById("url-col").innerHTML = fullHtmlStr;
+  }
+
+  function autoGetUrls() {
+    getUrls();
+    setTimeout(autoGetUrls, 10000);
+  }
+</script>
+
+</html>

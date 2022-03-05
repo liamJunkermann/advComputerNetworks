@@ -108,7 +108,7 @@ func (c *Cache) get(key string) (*io.Reader, error) {
 	c.mutex.Unlock()
 	if !ok && len(content) > 0 {
 		glog.Info("Cache doesn't know key ", hashValue)
-		return nil, fmt.Errorf("Key '%s' is not known to cache", hashValue)
+		return nil, fmt.Errorf("key '%s' is not known to cache", hashValue)
 	}
 
 	glog.Info("Cache has key", hashValue)
@@ -167,7 +167,7 @@ func (c *Cache) put(key string, content *io.Reader, contentLength int64, timing 
 		}
 		glog.Info("Wrote content of entry ", hashValue, " into file")
 	} else { // Too large for in-memory cache, just write to file
-		defer c.release(hashValue, nil, time.Now().Sub(time.Now()))
+		defer c.release(hashValue, nil, time.Since(time.Now()))
 		glog.Info("Added nil-entry for ", hashValue, " into in-memory cache")
 
 		file, err := os.Create(c.folder + hashValue)

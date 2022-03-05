@@ -2,8 +2,7 @@
   
 {
 	"port": "8080",
-	"target": "https://imgs.xkcd.com/",
+	"webPort": "8081",
 	"cache_folder": "./cache/",
-	"debug_logging": true,
 	"max_cache_item_size": 5
 }
