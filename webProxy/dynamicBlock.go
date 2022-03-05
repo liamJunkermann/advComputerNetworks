@@ -10,17 +10,17 @@ import (
 )
 
 type DynamicBlock struct {
-	Remoteaddr	string	 `json:"remoteAddr"`
-	Method			string 	 `json:"method"`
-	Url 				string   `json:"url"`
-	Blocked 		bool		 `json:"blocked"`
+	Remoteaddr string `json:"remoteAddr"`
+	Method     string `json:"method"`
+	Url        string `json:"url"`
+	Blocked    bool   `json:"blocked"`
 }
 
 type URLlist struct {
-	hash 				hash.Hash
-	UrlValues		map[string]DynamicBlock	`json:"urlValues"`
-	busyValues	map[string]*sync.Mutex
-	mutex				*sync.Mutex
+	hash       hash.Hash
+	UrlValues  map[string]DynamicBlock `json:"urlValues"`
+	busyValues map[string]*sync.Mutex
+	mutex      *sync.Mutex
 }
 
 func CreateList() (*URLlist, error) {
@@ -31,10 +31,10 @@ func CreateList() (*URLlist, error) {
 	mutex := &sync.Mutex{}
 
 	urlList := &URLlist{
-		hash: hash,
-		UrlValues: url,
+		hash:       hash,
+		UrlValues:  url,
 		busyValues: busy,
-		mutex: mutex,
+		mutex:      mutex,
 	}
 
 	return urlList, nil

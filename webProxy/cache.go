@@ -51,12 +51,12 @@ func CreateCache(path string) (*Cache, error) {
 	mutex := &sync.Mutex{}
 
 	cache := &Cache{
-		folder:      path,
-		hash:        hash,
-		knownValues: values,
+		folder:       path,
+		hash:         hash,
+		knownValues:  values,
 		timingValues: timeValues,
-		busyValues:  busy,
-		mutex:       mutex,
+		busyValues:   busy,
+		mutex:        mutex,
 	}
 
 	return cache, nil
@@ -156,7 +156,6 @@ func (c *Cache) put(key string, content *io.Reader, contentLength int64, timing 
 		if err != nil {
 			return err
 		}
-
 
 		defer c.release(hashValue, buffer.Bytes(), timing)
 		glog.Info("Added ", hashValue, "into in-memory cache")

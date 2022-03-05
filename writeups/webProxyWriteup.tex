@@ -1,0 +1,156 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{fancyhdr} 
+\usepackage{lastpage} 
+\usepackage{extramarks} 
+\usepackage{graphicx,color}
+\usepackage{anysize}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{listings-golang} % import this package after listings
+\usepackage{float}
+\usepackage{url}
+\usepackage{listings}
+\usepackage[svgnames]{xcolor}
+\usepackage[colorlinks=true, linkcolor=Black, urlcolor=Black]{hyperref}
+
+\textwidth=6.5in
+\linespread{1.0} % Line spacing
+\renewcommand{\familydefault}{\sfdefault}
+
+\newcommand{\includecode}[4]{\lstinputlisting[float,floatplacement=H, caption={[#1]#2}, captionpos=b, frame=single, label={#3}]{#4}}
+
+%% includescalefigure:
+%% \includescalefigure{label}{short caption}{long caption}{scale}{filename}
+%% - includes a figure with a given label, a short caption for the table of contents and a longer caption that describes the figure in some detail and a scale factor 'scale'
+\newcommand{\includescalefigure}[5]{
+\begin{figure}[H]
+\centering
+\includegraphics[width=#4\linewidth]{#5}
+\captionsetup{width=.8\linewidth} 
+\caption[#2]{#3}
+\label{#1}
+\end{figure}
+}
+
+%% includefigure:
+%% \includefigure{label}{short caption}{long caption}{filename}
+%% - includes a figure with a given label, a short caption for the table of contents and a longer caption that describes the figure in some detail
+\newcommand{\includefigure}[4]{
+\begin{figure}[H]
+\centering
+\includegraphics{#4}
+\captionsetup{width=.8\linewidth} 
+\caption[#2]{#3}
+\label{#1}
+\end{figure}
+}
+
+%% Code formatting:
+\usepackage{xcolor}
+\definecolor{light-gray}{gray}{0.95}
+\newcommand{\code}[1]{\colorbox{light-gray}{\texttt{#1}}}
+
+\newcommand{\codelisting}[1]{
+  \code{#1}
+  \label{code:#1}
+  \lstinputlisting{../webProxy/#1}
+}
+
+\newcommand{\coderef}[1]{
+  \hyperref[code:#1]{\code{#1}}
+}
+
+
+\lstset{ % add your own preferences
+    frame=single,
+    basicstyle=\footnotesize,
+    keywordstyle=\color{red},
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false, 
+    stringstyle=\color{blue},
+    tabsize=4,
+    language=Golang % this is it !
+}
+
+%%------------------------------------------------
+%% Parameters
+%%------------------------------------------------
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\authorName} % Top left header
+\chead{\moduleCode\ - \assignmentTitle} % Top center header
+\rhead{\firstxmark} % Top right header
+\lfoot{\lastxmark} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage\ of\ \pageref{LastPage}} % Bottom right footer
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\newcommand{\assignmentTitle}{Project 1 - A Web Proxy Server}
+\newcommand{\moduleCode}{CSU34031} 
+\newcommand{\moduleName}{Advanced Computer Networks} 
+\newcommand{\authorName}{Liam Junkermann} 
+\newcommand{\authorID}{19300141}
+\newcommand{\reportDate}{\today}
+\renewcommand{\abstractname}{Introduction}
+
+\title{
+    \vspace{-1in}
+    \begin{figure}[!ht]
+    \flushleft
+    \includegraphics[width=0.4\linewidth]{reduced-trinity.png}
+    \end{figure}
+    \vspace{-0.5cm}
+    \hrulefill \\
+    \vspace{1cm}
+    \textmd{\textbf{\moduleCode\ \moduleName}}\\
+    \textmd{\textbf{\assignmentTitle}}\\
+    \textmd{\authorName\ - \authorID}\\
+    \textmd{\reportDate}\\
+    \vspace{0.5cm}
+    \hrulefill \\
+}
+\date{}
+\author{}
+
+\begin{document}
+    \lstset{language=bash, float=h, captionpos=b, frame=single, numbers=left, numberblanklines=false, numberstyle=\tiny, numbersep=1mm, framexleftmargin=3mm, xleftmargin=5mm, aboveskip=3mm, breaklines=true}
+    \captionsetup{width=.8\linewidth} 
+
+    \maketitle
+    \begin{abstract}
+      The goal of this assignment was to build a web proxy with the following details:
+      \begin{enumerate}
+        \item Respond to HTTP \& HTTPS requests and display each request on a management console
+        \item Handle websocket connections
+        \item Dynamically block selected URLs via the management console
+        \item Efficiently cache HTTP request locally
+        \item Handle multiple requests through threading
+      \end{enumerate}
+    \end{abstract}
+    \tableofcontents
+    \newpage
+    
+    \section{Design and Implementation}
+    \label{sec:Design}
+    This webproxy has 3 main parts: the main server (run from \coderef{main.go}), the cache (built in \coderef{cache.go}) and the web dashboard which manages blocking of urls (run from \coderef{webDashboard.go} and \coderef{dynamicBlock.go})
+    \newpage
+    \section{Code Listings}
+    \label{sec:codeListing}
+    \codelisting{main.go}
+    \codelisting{config.go}
+    \codelisting{cache.go}
+    \codelisting{dynamicBlock.go}
+    \codelisting{webDashboard.go}
+    
+    \subsection{The systems strengths and weaknesses}
+    
+    \subsection{Learnings from Assignment 2}
+    
+\end{document}

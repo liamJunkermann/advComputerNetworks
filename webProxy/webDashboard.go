@@ -13,7 +13,6 @@ type WebDashboard struct{}
 
 func (f *WebDashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	glog.Info(r.Method, " request from ", r.Host, " for ", r.URL.Path)
-	
 
 	if r.URL.Path == "/urls" && r.Method == "GET" {
 		glog.Info("handling urls")

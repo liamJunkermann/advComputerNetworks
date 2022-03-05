@@ -8,7 +8,7 @@ import (
 type Config struct {
 	CacheFolder      string `json:"cache_folder"`
 	Port             string `json:"port"`
-	WebPort					 string `json:"WebPort"`
+	WebPort          string `json:"WebPort"`
 	MaxCacheItemSize int64  `json:"max_cache_item_size"` // in MB
 }
 

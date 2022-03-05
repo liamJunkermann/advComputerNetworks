@@ -21,18 +21,18 @@ var urlList *URLlist
 func main() {
 	configPath := flag.String("config", "./tiny.json", "configuration .json file path")
 	flag.Parse()
-	
+
 	loadConfig(*configPath)
 	glog.Info("Config Loaded")
-	
+
 	prepare()
-	
+
 	handler := &proxy{}
 	webHandler := &WebDashboard{}
-	
+
 	var addr = flag.String("addr", "127.0.0.1:"+config.Port, "The addr of the proxy.")
 	var webAddr = flag.String("webAddr", "127.0.0.1:"+config.WebPort, "The web dashboard addr.")
-	
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -41,7 +41,7 @@ func main() {
 			glog.Fatal("ListenAndServe:", err)
 		}
 		wg.Done()
-		}()
+	}()
 	wg.Add(1)
 	go func() {
 		glog.Info("Starting web server on ", *webAddr)
@@ -90,9 +90,7 @@ func delHopHeaders(header http.Header) {
 }
 
 func appendHostToXForwardHeader(header http.Header, host string) {
-	// If we aren't the first proxy retain prior
-	// X-Forwarded-For information as a comma+space
-	// separated list and fold multiple headers into one.
+	// Including previous proxy hops in X-Forwarded-For Header
 	if prior, ok := header["X-Forwarded-For"]; ok {
 		host = strings.Join(prior, ", ") + ", " + host
 	}
@@ -107,7 +105,7 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 	_, isListed := urlList.has(fullUrl)
 	if !isListed {
-		urlList.put(fullUrl, &DynamicBlock{Remoteaddr: req.RemoteAddr, Method: req.Method, Url: req.Host + ""+req.URL.Path, Blocked: false })
+		urlList.put(fullUrl, &DynamicBlock{Remoteaddr: req.RemoteAddr, Method: req.Method, Url: req.Host + "" + req.URL.Path, Blocked: false})
 	}
 
 	listing, err := urlList.get(fullUrl)
@@ -121,28 +119,28 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	if !listing.Blocked {
 		requestDump, _ := httputil.DumpRequest(req, true)
 		glog.Info(string(requestDump))
-	
+
 		if req.Method != "CONNECT" { // if HTTP request
 			glog.Info("Requested: ", fullUrl)
 			client := &http.Client{}
-	
+
 			if busy, ok := cache.has(fullUrl); !ok {
 				startTime := time.Now()
 				defer busy.Unlock()
 				req.RequestURI = ""
-	
+
 				delHopHeaders(req.Header)
 				if clientIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
 					appendHostToXForwardHeader(req.Header, clientIP)
 				}
-	
+
 				resp, err := client.Do(req)
 				if err != nil {
 					http.Error(wr, "Server Error", http.StatusInternalServerError)
 					log.Fatal("ServeHTTP:", err)
 					return
 				}
-	
+
 				var reader io.Reader
 				reader = resp.Body
 				endTime := time.Now()
@@ -156,7 +154,7 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 				}
 				defer resp.Body.Close()
 			}
-	
+
 			content, err := cache.get(fullUrl)
 			if err != nil {
 				http.Error(wr, "Server Error", http.StatusInternalServerError)
@@ -179,14 +177,14 @@ func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				glog.Error(err)
 			}
-	
+
 			// Access Client connection
 			hj, _ := wr.(http.Hijacker)
 			clientConn, _, hjErr := hj.Hijack()
 			if hjErr != nil {
 				glog.Error(hjErr)
 			}
-	
+
 			clientConn.Write([]byte("HTTP/1.0 200 OK\r\n\r\n"))
 			go io.Copy(clientConn, serverConn)
 			_, srvErr := io.Copy(serverConn, clientConn)
