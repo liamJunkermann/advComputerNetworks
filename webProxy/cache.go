@@ -38,8 +38,8 @@ func CreateCache(path string) (*Cache, error) {
 	busy := make(map[string]*sync.Mutex)
 
 	// Go through every file an save its name in the map. The content of the file
-	// is loaded when needed. This makes sure that we don't have to read
-	// the directory content each time the user wants data that's not yet loaded.
+	// is loaded when needed. This makes sure that we do not have to read
+	// the directory content each time the user wants data that is not yet loaded.
 	for _, info := range fileInfos {
 		if !info.IsDir() {
 			values[info.Name()] = nil
@@ -83,7 +83,7 @@ func (c *Cache) has(key string) (*sync.Mutex, bool) {
 		c.mutex.Lock()
 	}
 
-	// If a resource is in the shared cache, it can't be reserved. One can simply
+	// If a resource is in the shared cache, it cannot be reserved. One can simply
 	// access it directly from the cache
 	if _, found := c.knownValues[hashValue]; found {
 		return nil, true

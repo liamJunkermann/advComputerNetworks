@@ -58,6 +58,7 @@
   \code{#1}
   \label{code:#1}
   \lstinputlisting{../webProxy/#1}
+  \vspace{2em}
 }
 
 \newcommand{\coderef}[1]{
@@ -139,7 +140,7 @@
     
     \section{Design and Implementation}
     \label{sec:Design}
-    This webproxy has 3 main parts: the main server (run from \coderef{main.go}), the cache (built in \coderef{cache.go}) and the web dashboard which manages blocking of urls (run from \coderef{webDashboard.go} and \coderef{dynamicBlock.go})
+    This webproxy has 3 main parts: the main server (run from \coderef{main.go}), the cache (built in \coderef{cache.go}) and the web dashboard which manages blocking of urls (run from \coderef{webDashboard.go} and \coderef{dynamicBlock.go}). The main proxy server handles the proxy connections by either forwarding the necessary https \code{CONNECT} requests and creating the appropriate tunnels, or repeating, caching, and responding to HTTP requests. The Cache is managed through responses being saved to files with the request content included, this cache can be retained through many stops and starts of the proxy server. The hashes are saved in memory along with timing and bandwidth data (this data is lost when the server is stopped). Finally, a web dashboard was created to manage the URLs and blocking selected URLs, currently the web dashboard needs to request the list of proxied endpoints, but a websocket approach could be used going forward to allow for streaming of URLs to the web management console.
     \newpage
     \section{Code Listings}
     \label{sec:codeListing}
@@ -148,9 +149,5 @@
     \codelisting{cache.go}
     \codelisting{dynamicBlock.go}
     \codelisting{webDashboard.go}
-    
-    \subsection{The systems strengths and weaknesses}
-    
-    \subsection{Learnings from Assignment 2}
     
 \end{document}
