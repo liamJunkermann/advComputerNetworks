@@ -30,8 +30,8 @@ func main() {
 	handler := &proxy{}
 	webHandler := &WebDashboard{}
 
-	var addr = flag.String("addr", "127.0.0.1:"+config.Port, "The addr of the proxy.")
-	var webAddr = flag.String("webAddr", "127.0.0.1:"+config.WebPort, "The web dashboard addr.")
+	var addr = flag.String("addr", ":"+config.Port, "The addr of the proxy.")
+	var webAddr = flag.String("webAddr", ":"+config.WebPort, "The web dashboard addr.")
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
